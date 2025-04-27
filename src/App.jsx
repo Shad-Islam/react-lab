@@ -4,11 +4,14 @@ import Login from "./pages/loginPage/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
 
 function App() {
+  const isLoggedIn = localStorage.getItem("user") !== null;
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        {isLoggedIn && <Route path="/dashboard" element={<Dashboard />} />}
+
+        
       </Routes>
     </Router>
   );

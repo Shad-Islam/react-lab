@@ -19,6 +19,7 @@ export default function Login() {
     );
 
     if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
       navigate("/dashboard");
     } else {
       alert("Invalid credentials");

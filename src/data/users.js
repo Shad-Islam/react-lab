@@ -9,6 +9,11 @@ const users = [
     phone: "0987654321",
     password: "password456",
   },
+  {
+    name: "Shad",
+    phone: "017111",
+    password: "111",
+  },
 ];
 
 export default users;
