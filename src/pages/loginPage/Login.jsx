@@ -2,6 +2,8 @@ import React from "react";
 import users from "../../data/users";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchTenents } from "../utility/fetchTenants";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -25,6 +27,22 @@ export default function Login() {
       alert("Invalid credentials");
     }
   };
+
+  const { data, isloading, isError, error } = useQuery({
+    queryKey: ["tenants"],
+    queryFn: fetchTenents,
+  });
+  if (isloading) {
+    return <div>Loading...</div>;
+  }
+  if (isError) {
+    return <div>Error: {error.message}</div>;
+  }
+  if (!data) {
+    return <div>No data found</div>;
+  }
+  const tenants = data;
+  console.log(tenants);
 
   return (
     <>
@@ -50,7 +68,20 @@ export default function Login() {
             }
             required
           />
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-700 cursor-pointer transition duration-300">
+          <select className="mb-4 p-2 border rounded">
+            <option value="" hidden >
+              Select Tenant ID
+            </option>
+            {tenants.map((tenant) => (
+              <option key={tenant.id} value={tenant.id}>
+                {tenant.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-700 cursor-pointer transition duration-300"
+          >
             Login
           </button>
         </form>
