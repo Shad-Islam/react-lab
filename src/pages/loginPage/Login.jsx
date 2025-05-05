@@ -1,5 +1,4 @@
 import React from "react";
-import users from "../../data/users";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -9,30 +8,58 @@ export default function Login() {
   const [formData, setFormData] = useState({
     phone: "",
     password: "",
+    tenantId: "",
   });
   const navigate = useNavigate();
 
   const handelSubmit = (e) => {
     e.preventDefault();
 
-    const user = users.find(
-      (user) =>
-        user.phone === formData.phone && user.password === formData.password
-    );
+    const user = {
+      phone: formData.phone,
+      password: formData.password,
+      tenantId: formData.tenantId,
+    };
 
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate("/dashboard");
-    } else {
-      alert("Invalid credentials");
-    }
+    console.log(user);
+    authenticateUser(user)
   };
 
-  const { data, isloading, isError, error } = useQuery({
+  const authenticateUser = async (user) => {
+    const {tenantId, ...rest} = user;
+    const base_url = "http://localhost:8080";
+    const login_url = `${base_url}/tenant/${tenantId}/login`;
+
+        try {
+      const response = await fetch(login_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(rest),
+      });
+
+    if (!response.ok) {
+      throw new Error("Failed to authenticate user");
+    }
+
+    const data = await response.json();
+    console.log(data);
+    localStorage.setItem("token", data.token);
+    navigate("/dashboard");
+    return data;
+  }
+    catch (error) {
+      console.error("Error:", error);
+      alert("Login failed. Please check your credentials.");
+    }
+  }
+  // Fetch tenants using react-query
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["tenants"],
     queryFn: fetchTenents,
   });
-  if (isloading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
   if (isError) {
@@ -68,12 +95,19 @@ export default function Login() {
             }
             required
           />
-          <select className="mb-4 p-2 border rounded">
-            <option value="" hidden >
+          <select
+            className="mb-4 p-2 border rounded"
+            value={formData.tenantId}
+            onChange={(e) =>
+              setFormData({ ...formData, tenantId: e.target.value })
+            }
+            required
+          >
+            <option value="" hidden>
               Select Tenant ID
             </option>
             {tenants.map((tenant) => (
-              <option key={tenant.id} value={tenant.id}>
+              <option key={tenant._id} value={tenant._id}>
                 {tenant.name}
               </option>
             ))}
