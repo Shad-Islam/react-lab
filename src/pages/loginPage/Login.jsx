@@ -22,15 +22,15 @@ export default function Login() {
     };
 
     console.log(user);
-    authenticateUser(user)
+    authenticateUser(user);
   };
 
   const authenticateUser = async (user) => {
-    const {tenantId, ...rest} = user;
+    const { tenantId, ...rest } = user;
     const base_url = "http://localhost:8080";
     const login_url = `${base_url}/tenant/${tenantId}/login`;
 
-        try {
+    try {
       const response = await fetch(login_url, {
         method: "POST",
         headers: {
@@ -39,21 +39,21 @@ export default function Login() {
         body: JSON.stringify(rest),
       });
 
-    if (!response.ok) {
-      throw new Error("Failed to authenticate user");
-    }
+      if (!response.ok) {
+        throw new Error("Failed to authenticate user");
+      }
 
-    const data = await response.json();
-    console.log(data);
-    localStorage.setItem("token", data.token);
-    navigate("/dashboard");
-    return data;
-  }
-    catch (error) {
+      const data = await response.json();
+      console.log(data);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("name", data.user.first_name);
+      navigate("/dashboard");
+      return data;
+    } catch (error) {
       console.error("Error:", error);
       alert("Login failed. Please check your credentials.");
     }
-  }
+  };
   // Fetch tenants using react-query
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["tenants"],

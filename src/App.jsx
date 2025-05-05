@@ -5,7 +5,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import NotFound from "./pages/not found/NotFound";
 
 function App() {
-  const isLoggedIn = localStorage.getItem("user") !== null;
+  const isLoggedIn = localStorage.getItem("token") !== null;
   return (
     <Router>
       <Routes>
